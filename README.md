@@ -1,6 +1,6 @@
 # RubiksCubeSolver
 
-git clone https://github.com/StiekemaD/RubiksCubeSolver  
+git clone https://github.com/StiekemaD/RubiksCubeSolver.git  
 cd RubiksCubeSolver  
 make build -- to build the project  
 make clean -- to remove object files and executable  
