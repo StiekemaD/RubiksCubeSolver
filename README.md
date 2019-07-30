@@ -9,8 +9,11 @@ make rebuild -- to remove object files and executable, then build the project
 ./rubikscube to run the solver!
 
 Possible moves on the cube:
+
 1 Clockwise Front
+
 2 Clockwise Back
+
 3 Clockwise Up
 4 Clockwise Down
 5 Clockwise Left
