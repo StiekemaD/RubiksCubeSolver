@@ -27,7 +27,7 @@ void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::Rende
 void bfs(Rubiks_cube &cube, Path& solution);
 void bfs_moves(Path path);
 
-const int NUM_THREADS = 7;
+const int NUM_THREADS = 8;
 ThreadPool pool(NUM_THREADS);
 std::atomic<int> highest_cube_score = 0;
 std::atomic<bool> has_white_cross = false, has_first_two_layers = false;

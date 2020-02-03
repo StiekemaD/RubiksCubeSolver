@@ -2,6 +2,12 @@
 
 ThreadPool::ThreadPool(size_t threads) : stop_running(false)
 {
+    unsigned int check_threads = std::thread::hardware_concurrency();
+
+    if(threads > check_threads && check_threads != 0) {
+        threads = check_threads;
+    }
+    
     for(size_t i = 0; i < threads; ++i) {
         workers.push_back(std::thread(&ThreadPool::doWork, this));
     }
