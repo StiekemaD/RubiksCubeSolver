@@ -6,50 +6,7 @@ Rubiks_cube::Rubiks_cube()
         cube_[i] = {{  {{ i, i, i }}, {{ i, i, i }}, {{ i, i, i }}  }};
     }
 }
-/*
-bool Rubiks_cube::hasWhiteCross() {
-    if(cube_[5][0][1] != cube_[5][1][1] || cube_[5][2][1] != cube_[5][1][1] || cube_[5][1][0] != cube_[5][1][1] || cube_[5][1][2] != cube_[5][1][1]) { return false; }
-    if(cube_[1][2][1] != cube_[1][1][1] || cube_[2][2][1] != cube_[2][1][1] || cube_[3][2][1] != cube_[3][1][1] || cube_[4][2][1] != cube_[4][1][1]) { return false; }
-    return true;
-}
 
-bool Rubiks_cube::hasFirstTwoLayers() {
-    if(cube_[5][0][0] != cube_[5][1][1] || cube_[5][0][2] != cube_[5][1][1] || cube_[5][2][0] != cube_[5][1][1] || cube_[5][2][2] != cube_[5][1][1]) { return false; }
-    for(int i = 1; i < 5; i++) {
-        if(cube_[i][1][0] != cube_[i][1][1] || cube_[i][2][0] != cube_[i][1][1] || cube_[i][1][2] != cube_[i][1][1] || cube_[i][2][2] != cube_[i][1][1]) { return false; }
-    }
-    return hasWhiteCross();
-}
-
-bool Rubiks_cube::hasYellowCross() {
-    if(cube_[0][0][1] != cube_[0][1][1] || cube_[0][2][1] != cube_[0][1][1] || cube_[0][1][0] != cube_[0][1][1] || cube_[0][1][2] != cube_[0][1][1]) { return false; }
-    return true;
-}
-
-bool Rubiks_cube::hasTopCornersAligned() {
-    if(cube_[0][0][0] != cube_[0][1][1] && cube_[0][0][0] != cube_[1][1][1] && cube_[0][0][0] != cube_[4][1][1] || cube_[1][0][0] != cube_[0][1][1] && cube_[1][0][0] != cube_[1][1][1] && cube_[1][0][0] != cube_[4][1][1] || cube_[4][0][2] != cube_[0][1][1] && cube_[4][0][2] != cube_[1][1][1] && cube_[4][0][2] != cube_[4][1][1]) { return false; }
-    if(cube_[0][0][2] != cube_[0][1][1] && cube_[0][0][2] != cube_[3][1][1] && cube_[0][0][2] != cube_[4][1][1] || cube_[3][0][2] != cube_[0][1][1] && cube_[3][0][2] != cube_[3][1][1] && cube_[3][0][2] != cube_[4][1][1] || cube_[4][0][0] != cube_[0][1][1] && cube_[4][0][0] != cube_[3][1][1] && cube_[4][0][0] != cube_[4][1][1]) { return false; }
-    if(cube_[0][2][0] != cube_[0][1][1] && cube_[0][2][0] != cube_[2][1][1] && cube_[0][2][0] != cube_[1][1][1] || cube_[1][0][2] != cube_[0][1][1] && cube_[1][0][2] != cube_[2][1][1] && cube_[1][0][2] != cube_[1][1][1] || cube_[2][0][0] != cube_[0][1][1] && cube_[2][0][0] != cube_[2][1][1] && cube_[2][0][0] != cube_[1][1][1]) { return false; }
-    if(cube_[0][2][2] != cube_[0][1][1] && cube_[0][2][2] != cube_[2][1][1] && cube_[0][2][2] != cube_[3][1][1] || cube_[2][0][2] != cube_[0][1][1] && cube_[2][0][2] != cube_[2][1][1] && cube_[2][0][2] != cube_[3][1][1] || cube_[3][0][0] != cube_[0][1][1] && cube_[3][0][0] != cube_[2][1][1] && cube_[3][0][0] != cube_[3][1][1]) { return false; }
-    return true;
-}
-
-bool Rubiks_cube::hasTopEdgesAligned() {
-    if(cube_[0][2][1] != cube_[0][1][1] && cube_[0][2][1] != cube_[2][1][1] || cube_[2][0][1] != cube_[0][1][1] && cube_[2][0][1] != cube_[2][1][1]) { return false; }
-    if(cube_[0][1][0] != cube_[0][1][1] && cube_[0][1][0] != cube_[1][1][1] || cube_[1][0][1] != cube_[0][1][1] && cube_[1][0][1] != cube_[1][1][1]) { return false; }
-    if(cube_[0][0][1] != cube_[0][1][1] && cube_[0][0][1] != cube_[4][1][1] || cube_[4][0][1] != cube_[0][1][1] && cube_[4][0][1] != cube_[4][1][1]) { return false; }
-    if(cube_[0][1][2] != cube_[0][1][1] && cube_[0][2][1] != cube_[3][1][1] || cube_[3][0][1] != cube_[0][1][1] && cube_[3][0][1] != cube_[3][1][1]) { return false; }
-    return true;
-}
-
-bool Rubiks_cube::isComplete() {
-    if(!hasYellowCross()) { return false; }
-    if(cube_[0][0][0] != cube_[0][1][1] || cube_[0][0][2] != cube_[0][1][1] || cube_[0][2][0] != cube_[0][1][1] || cube_[0][2][2] != cube_[0][1][1]) { return false; }
-    if(!hasTopCornersAligned() || !hasTopEdgesAligned()) { return false; }
-    return hasFirstTwoLayers();
-}
-*/
-// new strategy
 int Rubiks_cube::hasWhiteCross() {
     int score = 0;
     if(cube_[1][2][1] == cube_[1][1][1] && cube_[5][1][0] == cube_[5][1][1]) score++;
@@ -147,34 +104,20 @@ void Rubiks_cube::undoMove(Move m) {
     }
 }
 
-void Rubiks_cube::print()
+std::string Rubiks_cube::toString(Rubiks_cube r)
 {
     int i, j, k;
+    std::string cube_string = "";
 
-    for(i = 0; i < cube_[0].size(); i++) {
-        std::cout << "      ";
-        for(j = 0; j < cube_[0][i].size(); j++) {
-            std::cout << cube_[0][i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-
-    for(i = 0; i < 3; i++) {
-        for(j = 1; j < 5; j++) {
-            for(k = 0; k < cube_[j][i].size(); k++) {
-                std::cout << cube_[j][i][k] << " ";
+    for(i = 0; i < 6; i++) {
+        for(j = 0; j < r.cube_[i].size(); j++) {
+            for(k = 0; k < r.cube_[i][j].size(); k++) {
+                cube_string += r.cube_[i][j][k];
             }
         }
-        std::cout << "\n";
     }
 
-    for(i = 0; i < cube_[5].size(); i++) {
-        std::cout << "      ";
-        for(j = 0; j < cube_[5][i].size(); j++) {
-            std::cout << cube_[5][i][j] << " ";
-        }
-        std::cout << "\n";
-    }
+    return cube_string;
 }
 
 void Rubiks_cube::turn_face(Face &face, bool invert)
@@ -364,29 +307,3 @@ void Rubiks_cube::rotate_cube(bool right)
         cube_[4] = temp;
     }
 }
-
-/*
-    cube_[0] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-
-    cube_[1] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-
-    cube_[2] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-
-    cube_[3] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-
-    cube_[4] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-
-    cube_[5] = {{  {{ 1, 2, 3 }},
-                   {{ 4, 5, 6 }},
-                   {{ 7, 8, 9 }}  }};
-*/

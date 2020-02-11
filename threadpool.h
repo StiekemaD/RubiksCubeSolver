@@ -9,7 +9,6 @@
 #include <queue>
 #include <condition_variable>
 #include <functional>
-#include <set>
 #include <stdlib.h>
 #include <cstring>
 #include <memory>
@@ -89,8 +88,8 @@ public:
     virtual ~ThreadPool() { abort(); }
     void abort();
     void clearTasks() { while(!tasks.empty()) { tasks.pop(); } }
-    template<class F, class... Args>
-    auto addWork (F&&, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
+    //template<class F, class... Args>
+    //auto addWork (F&&, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
     void addWork(Task task);
     void stopRunning(bool stop = true) { stop_running = stop; }
 

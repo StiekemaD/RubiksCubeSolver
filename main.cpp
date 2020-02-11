@@ -5,7 +5,7 @@
 #include <string>
 //#include <vector>
 #include <queue>
-//#include <set>
+#include <unordered_set>
 #include <mutex>
 #include <chrono>
 #include <unistd.h>
@@ -21,20 +21,36 @@ std::vector<std::vector<Move>> topLayerAlgs = {{ Move::F, Move::U, Move::R, Move
                                                { Move::F, Move::F, Move::U, Move::L, Move::Ri, Move::F, Move::F, Move::Li, Move::R, Move::U, Move::F, Move::F }}; // orient the yellow edge pieces
 // test
 std::vector<Move> bannedMoves;
-bool operator<(const Rubiks_cube &cube1, const Rubiks_cube &cube2) { std::tie(cube1.cube_) < std::tie(cube2.cube_); }
+bool operator<(const Rubiks_cube &cube1, const Rubiks_cube &cube2) { return std::tie(cube1.cube_) < std::tie(cube2.cube_); }
 void renderCube(Rubiks_cube &cube);
 void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::RenderWindow &window);
-void bfs(Rubiks_cube &cube, Path& solution);
+void bfs(Rubiks_cube &cube);
 void bfs_moves(Path path);
 
-const int NUM_THREADS = 8;
+const int NUM_THREADS = 4;
 ThreadPool pool(NUM_THREADS);
 std::atomic<int> highest_cube_score = 0;
 std::atomic<bool> has_white_cross = false, has_first_two_layers = false;
 
 std::chrono::high_resolution_clock::time_point begin, end;
 
-std::set<Rubiks_cube> visited;
+struct CubeComparator
+{
+    bool operator()(const Rubiks_cube &cube1, const Rubiks_cube &cube2) const
+    {
+        return Rubiks_cube::toString(cube1) == Rubiks_cube::toString(cube2);
+    }
+};
+
+struct CubeHasher
+{
+    size_t operator()(const Rubiks_cube &cube) const
+    {
+        return std::hash<std::string>()(Rubiks_cube::toString(cube));
+    }
+};
+
+std::unordered_set<Rubiks_cube, CubeHasher, CubeComparator> visited;
 Rubiks_cube cube = Rubiks_cube();
 Path solution = Path();
 
@@ -44,13 +60,12 @@ sf::Font font;
 
 void doRandomMoves(Rubiks_cube& cube, int amount)
 {
-
     while(amount > 0) {
         cube.doMove(moves[rand() % 12]);
         amount--;
     }
 }
-
+/*
 void debug()
 {
     // random debug function
@@ -62,7 +77,7 @@ void batchTest() {
     for(int i = 0; i < 50; i++) {
         cube = Rubiks_cube();
         doRandomMoves(cube, 50);
-        bfs(cube, solution);
+        bfs(cube);
         std::cout << "Finding solution for cube: " << i+1 << "\n";
         cube_solved = false;
         std::vector<Move> sMoves;
@@ -79,7 +94,6 @@ void batchTest() {
 
                 // testing tree structure
                 while(solution.size() > 0) {
-                    std::cout << "Solution size: " << solution.size() << "\n";
                     sMoves.push_back(solution.back().first);
                     solution.pop();
                 }
@@ -94,7 +108,7 @@ void batchTest() {
         }
     }
 }
-
+*/
 
 int main(int argc, char *argv[]) {
     //if(!font.loadFromFile("arial.ttf")) { std::cout << " REEEE \n"; }
@@ -124,10 +138,13 @@ void printMove(Move m) {
     std::cout << ", ";
 }
 
-void bfs(Rubiks_cube &cube, Path& solution) {
+void bfs(Rubiks_cube &cube) {
     visited.clear();
     solution = Path();
     highest_cube_score = 0;
+    has_white_cross = false;
+    has_first_two_layers = false;
+    bannedMoves.clear();
 
     begin = std::chrono::high_resolution_clock::now();
 
@@ -210,8 +227,8 @@ void bfs_moves(Path path)
                 {
                     pool.stopRunning();
                     highest_cube_score = score;
-                    pool.clearTasks();
                     usleep(100000);
+                    pool.clearTasks();
                     pool.stopRunning(false);
                     visited.clear();
 
@@ -281,8 +298,7 @@ void renderCube(Rubiks_cube &cube)
                     case sf::Keyboard::F: cube.doMove(Move::RotLeft); break;
                     case sf::Keyboard::G: cube.doMove(Move::RotRight); break;
                     case sf::Keyboard::A: doRandomMoves(cube, 50); break;
-                    case sf::Keyboard::S: bfs(cube, solution); finding_solution = true; break;
-                    case sf::Keyboard::Z: debug(); break;
+                    case sf::Keyboard::S: bfs(cube); finding_solution = true; break;
                     default: break;
                 }
             }

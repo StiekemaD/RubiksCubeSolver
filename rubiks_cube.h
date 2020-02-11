@@ -27,15 +27,6 @@ public:
     Rubiks_cube();
     void doMove(Move m);
     void undoMove(Move m);
-    void print(); // Leaving it in for debug
-/*    bool hasWhiteCross();
-    bool hasFirstTwoLayers();
-    bool hasYellowCross();
-    bool hasTopEdgesAligned();
-    bool hasTopCornersAligned();
-    bool isComplete();*/
-
-    // new strategy
     int hasWhiteCross();
     int hasFirstTwoLayers();
     int hasYellowCross();
@@ -46,6 +37,7 @@ public:
 
     int getF2Lcorner();
 
+    static std::string toString(Rubiks_cube c);
     std::string getFaceColor(int face, int x, int y) { return colors[cube_[face][x][y]]; }
     friend bool operator<(const Rubiks_cube &cube1, const Rubiks_cube &cube2);
 };

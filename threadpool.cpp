@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(size_t threads) : stop_running(false)
         workers.push_back(std::thread(&ThreadPool::doWork, this));
     }
 }
-
+/*
 template<class F, class... Args>
 auto ThreadPool::addWork (F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>
 {
@@ -32,7 +32,7 @@ auto ThreadPool::addWork (F&& f, Args&&... args) -> std::future<typename std::re
    c_v.notify_one();
    return res;
 }
-
+*/
 void ThreadPool::addWork(Task task)
 {
     {
