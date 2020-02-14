@@ -30,8 +30,8 @@ void bfs_moves(Path path);
 void doRandomMoves(Rubiks_cube &cube, int amount);
 void resetCubeSolver();
 
-const int NUM_THREADS = 8;
-ThreadPool pool(NUM_THREADS);
+int NUM_THREADS = 0;
+ThreadPool pool;
 std::atomic<int> highest_cube_score = 0;
 std::atomic<bool> has_white_cross = false, has_first_two_layers = false;
 
@@ -67,6 +67,19 @@ void doRandomMoves(Rubiks_cube& cube, int amount)
 }
 
 int main(int argc, char *argv[]) {
+
+    if(argc > 1) {
+        size_t size;
+        int x = std::stoi(argv[1]);
+        if(size < sizeof(argv[1])) {
+            std::cout << "Please enter a number for the amount of threads to be used!" << std::endl;
+        }
+        NUM_THREADS = x;
+    } else {
+        NUM_THREADS = 4;
+    }
+    pool.createWorkers(NUM_THREADS);
+
     renderCube(cube);
     pool.abort();
     return 0;
@@ -184,7 +197,7 @@ void bfs_moves(Path path)
                 {
                     pool.stopRunning();
                     highest_cube_score = score;
-                    //usleep(100000);
+                    usleep(100000);
                     pool.clearTasks();
                     pool.stopRunning(false);
 

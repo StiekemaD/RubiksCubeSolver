@@ -92,6 +92,7 @@ public:
     //auto addWork (F&&, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
     void addWork(Task task);
     void stopRunning(bool stop = true) { stop_running = stop; }
+    void createWorkers(int threads);
 
     void debug() { std::cout << tasks.size() << "\n"; }
 };

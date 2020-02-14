@@ -2,16 +2,26 @@
 
 ThreadPool::ThreadPool(size_t threads) : stop_running(false)
 {
+    this->createWorkers(threads);
+}
+
+void ThreadPool::createWorkers(int threads) {
+    if(threads == workers.size()) return;
+    if(workers.size() > 0) this->abort();
+    quit = false;
+
     unsigned int check_threads = std::thread::hardware_concurrency();
 
     if(threads > check_threads && check_threads != 0) {
         threads = check_threads;
     }
-    
+
+    std::cout << "Amount of threads = " << threads << std::endl;
     for(size_t i = 0; i < threads; ++i) {
         workers.push_back(std::thread(&ThreadPool::doWork, this));
     }
 }
+
 /*
 template<class F, class... Args>
 auto ThreadPool::addWork (F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>
