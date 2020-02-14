@@ -30,6 +30,7 @@ int Rubiks_cube::getF2Lcorner() {
     if(!(cube_[5][2][0] == cube_[5][1][1] && cube_[1][2][0] == cube_[1][1][1] && cube_[1][1][0] == cube_[1][1][1] && cube_[4][2][2] == cube_[4][1][1] && cube_[4][1][2] == cube_[4][1][1])) return 3;
     if(!(cube_[5][0][2] == cube_[5][1][1] && cube_[2][2][2] == cube_[2][1][1] && cube_[2][1][2] == cube_[2][1][1] && cube_[3][2][0] == cube_[3][1][1] && cube_[3][1][0] == cube_[3][1][1])) return 2;
     if(!(cube_[5][2][2] == cube_[5][1][1] && cube_[3][2][2] == cube_[3][1][1] && cube_[3][1][2] == cube_[3][1][1] && cube_[4][2][0] == cube_[4][1][1] && cube_[4][1][0] == cube_[4][1][1])) return 4;
+    return 0;
 }
 
 int Rubiks_cube::hasYellowCross() {
@@ -287,7 +288,7 @@ void Rubiks_cube::move_U(bool invert)
 }
 
 void Rubiks_cube::rotate_cube(bool right)
-{
+{/*
     Face temp;
     if(right) {
         turn_face(cube_[0], true);
@@ -301,6 +302,23 @@ void Rubiks_cube::rotate_cube(bool right)
         turn_face(cube_[0], false);
         turn_face(cube_[5], true);
         temp = cube_[1];
+        cube_[1] = cube_[2];
+        cube_[2] = cube_[3];
+        cube_[3] = cube_[4];
+        cube_[4] = temp;
+    }
+    */
+
+    Face temp;
+    turn_face(cube_[0], right);
+    turn_face(cube_[5], !right);
+    temp = cube_[1];
+    if(right) {
+        cube_[1] = cube_[4];
+        cube_[4] = cube_[3];
+        cube_[3] = cube_[2];
+        cube_[2] = temp;
+    } else {
         cube_[1] = cube_[2];
         cube_[2] = cube_[3];
         cube_[3] = cube_[4];

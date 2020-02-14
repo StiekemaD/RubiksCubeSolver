@@ -19,15 +19,18 @@ std::vector<std::vector<Move>> topLayerAlgs = {{ Move::F, Move::U, Move::R, Move
                                                { Move::R, Move::U, Move::Ri, Move::U, Move::R, Move::U, Move::U, Move::Ri }, // setting the yellow corners
                                                { Move::Ri, Move::F, Move::Ri, Move::B, Move::B, Move::R, Move::Fi, Move::Ri, Move::B, Move::B, Move::R, Move::R }, // orienting the yellow corners
                                                { Move::F, Move::F, Move::U, Move::L, Move::Ri, Move::F, Move::F, Move::Li, Move::R, Move::U, Move::F, Move::F }}; // orient the yellow edge pieces
-// test
+
+// Forward declaration of functions in main
 std::vector<Move> bannedMoves;
 bool operator<(const Rubiks_cube &cube1, const Rubiks_cube &cube2) { return std::tie(cube1.cube_) < std::tie(cube2.cube_); }
 void renderCube(Rubiks_cube &cube);
 void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::RenderWindow &window);
-void bfs(Rubiks_cube &cube);
+void bfs();
 void bfs_moves(Path path);
+void doRandomMoves(Rubiks_cube &cube, int amount);
+void resetCubeSolver();
 
-const int NUM_THREADS = 4;
+const int NUM_THREADS = 8;
 ThreadPool pool(NUM_THREADS);
 std::atomic<int> highest_cube_score = 0;
 std::atomic<bool> has_white_cross = false, has_first_two_layers = false;
@@ -51,12 +54,9 @@ struct CubeHasher
 };
 
 std::unordered_set<Rubiks_cube, CubeHasher, CubeComparator> visited;
-Rubiks_cube cube = Rubiks_cube();
 Path solution = Path();
-
+Rubiks_cube cube = Rubiks_cube();
 Function Task::function = nullptr;
-
-sf::Font font;
 
 void doRandomMoves(Rubiks_cube& cube, int amount)
 {
@@ -65,57 +65,9 @@ void doRandomMoves(Rubiks_cube& cube, int amount)
         amount--;
     }
 }
-/*
-void debug()
-{
-    // random debug function
-    std::cout << cube.hasFirstTwoLayers() << "\n";
-}
-
-void batchTest() {
-    bool cube_solved = false;
-    for(int i = 0; i < 50; i++) {
-        cube = Rubiks_cube();
-        doRandomMoves(cube, 50);
-        bfs(cube);
-        std::cout << "Finding solution for cube: " << i+1 << "\n";
-        cube_solved = false;
-        std::vector<Move> sMoves;
-
-        while( !cube_solved )
-        {
-            if(solution.size() > 0)
-            {
-                std::chrono::duration<double, std::ratio<1>> duration = end - begin;
-                std::cout << "Execution time = " << duration.count() << "seconds \n";
-
-                pool.stopRunning();
-                pool.clearTasks();
-
-                // testing tree structure
-                while(solution.size() > 0) {
-                    sMoves.push_back(solution.back().first);
-                    solution.pop();
-                }
-                std::cout << "Solution size: " << solution.size() << "\n";
-
-                for(int j = sMoves.size() - 1; j >= 0; j--)
-                    cube.doMove(sMoves[j]);
-                cube_solved = true;
-                std::cout << "Solved cube: " << i + 1 << "\n";
-            }
-            usleep(1000000 / 20);
-        }
-    }
-}
-*/
 
 int main(int argc, char *argv[]) {
-    //if(!font.loadFromFile("arial.ttf")) { std::cout << " REEEE \n"; }
-
     renderCube(cube);
-
-    //batchTest();
     pool.abort();
     return 0;
 }
@@ -136,15 +88,20 @@ void printMove(Move m) {
     case Move::Li: std::cout << "Move Li"; break;
     }
     std::cout << ", ";
+    std::cout.flush();
 }
 
-void bfs(Rubiks_cube &cube) {
+void resetCubeSolver() {
     visited.clear();
     solution = Path();
     highest_cube_score = 0;
     has_white_cross = false;
     has_first_two_layers = false;
     bannedMoves.clear();
+}
+
+void bfs() {
+    resetCubeSolver();
 
     begin = std::chrono::high_resolution_clock::now();
 
@@ -189,8 +146,8 @@ void bfs_moves(Path path)
 
         for(int i = 0; i < 4; i++) {
             pool.addWork(Task(n));
-            last.doMove(Move::RotLeft);
-            n.push_back(std::make_pair(Move::RotLeft, last));
+            last.doMove(Move::U);
+            n.push_back(std::make_pair(Move::U, last));
         }
     } else {
         for(auto it = moves.cbegin(); it != moves.cend(); it++) {
@@ -227,12 +184,15 @@ void bfs_moves(Path path)
                 {
                     pool.stopRunning();
                     highest_cube_score = score;
-                    usleep(100000);
+                    //usleep(100000);
                     pool.clearTasks();
                     pool.stopRunning(false);
-                    visited.clear();
 
-                    // to speed up process (and save memory)
+                    if(score >= 4) {
+                        visited.clear();
+                    }
+
+                    // to speed up the process (and save memory)
                     if(score == 7) {
                         int corner = last.getF2Lcorner();
                         if(corner == 1) { bannedMoves.push_back(Move::R); bannedMoves.push_back(Move::Ri); bannedMoves.push_back(Move::B); bannedMoves.push_back(Move::Bi); }
@@ -295,10 +255,10 @@ void renderCube(Rubiks_cube &cube)
                     case sf::Keyboard::R: cube.doMove(Move::Di); break;
                     case sf::Keyboard::T: cube.doMove(Move::Li); break;
                     case sf::Keyboard::Y: cube.doMove(Move::Ri); break;
-                    case sf::Keyboard::F: cube.doMove(Move::RotLeft); break;
-                    case sf::Keyboard::G: cube.doMove(Move::RotRight); break;
+                    //case sf::Keyboard::F: cube.doMove(Move::RotLeft); break;
+                    //case sf::Keyboard::G: cube.doMove(Move::RotRight); break;
                     case sf::Keyboard::A: doRandomMoves(cube, 50); break;
-                    case sf::Keyboard::S: bfs(cube); finding_solution = true; break;
+                    case sf::Keyboard::S: if(!cube.isComplete()) { bfs(); finding_solution = true; } else { std::cout << "Cube is already complete!" << std::endl; } break;
                     default: break;
                 }
             }
@@ -326,11 +286,13 @@ void renderCube(Rubiks_cube &cube)
         {
             if(i < 0)
             {
+                std::cout << std::endl;
                 solving_cube = false;
                 finding_solution = false;
                 sMoves.clear();
             } else {
                 usleep(500000);
+                printMove(sMoves[i]);
                 cube.doMove(sMoves[i--]);
             }
         }
@@ -344,20 +306,6 @@ void renderCube(Rubiks_cube &cube)
 void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::RenderWindow &window)
 {
     sf::RectangleShape testFaces[6];
-    sf::Text text[6];
-    text[0].setString("U");
-    text[1].setString("L");
-    text[2].setString("F");
-    text[3].setString("R");
-    text[4].setString("B");
-    text[5].setString("D");
-
-    for(int i = 0; i < 6; i++) {
-       // text[i].setFont(sf::Font::GetDefaultFont());
-        text[i].setCharacterSize(24);
-        text[i].setFillColor(sf::Color::Black);
-        text[i].setStyle(sf::Text::Bold);
-    }
 
     // Set location and size of faces
     for(int i = 0; i < 6; i++)
@@ -379,7 +327,6 @@ void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::Rende
                 faces[i][j][k].setOutlineColor(sf::Color::Black);
 
                 sf::Color fColor;
-                // Refactor to string or to char in cube (Switch doesn't like strings)
                 char color = cube.getFaceColor(i, j, k)[0];
                 switch (color) {
                     case 'W': fColor = sf::Color::White; break;
@@ -393,15 +340,7 @@ void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::Rende
                 }
                 faces[i][j][k].setFillColor(fColor);
                 window.draw(faces[i][j][k]);
-
-                if(j == 1 && k == 1) {
-                    sf::FloatRect textRect = text[i].getLocalBounds();
-                    text[i].setOrigin(textRect.left + textRect.width / 2.0f, textRect.top - textRect.height / 2.0f);
-                    text[i].setPosition(sf::Vector2f(((i == 0 || i == 5) ? 300 :(i * 150)) + k * 50, (i == 0 ? 50 : i == 5 ? 350 : 200) + j * 50));
-                    window.draw(text[i]);
-                }
             }
-
         }
     }
 }
