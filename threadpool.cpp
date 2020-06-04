@@ -2,7 +2,7 @@
 
 ThreadPool::ThreadPool(size_t threads) : stop_running(false)
 {
-    this->createWorkers(threads);
+
 }
 
 void ThreadPool::createWorkers(int threads) {
