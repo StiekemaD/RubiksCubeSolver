@@ -1,9 +1,5 @@
-// Compile with g++ -std=c++11 -pthread -o rubiks_cube rubiks_cube.cpp threadpool.cpp main.cpp
-
-//#include "rubiks_cube.h"
 #include "threadpool.h"
 #include <string>
-//#include <vector>
 #include <queue>
 #include <unordered_set>
 #include <mutex>
@@ -21,7 +17,6 @@ std::vector<std::vector<Move>> topLayerAlgs = {{ Move::F, Move::U, Move::R, Move
                                                { Move::F, Move::F, Move::U, Move::L, Move::Ri, Move::F, Move::F, Move::Li, Move::R, Move::U, Move::F, Move::F }}; // orient the yellow edge pieces
 
 // Forward declaration of functions in main
-std::vector<Move> bannedMoves;
 bool operator<(const Rubiks_cube &cube1, const Rubiks_cube &cube2) { return std::tie(cube1.cube_) < std::tie(cube2.cube_); }
 void renderCube(Rubiks_cube &cube);
 void renderFaces(Rubiks_cube &cube, sf::RectangleShape faces[6][3][3], sf::RenderWindow &window);
@@ -30,12 +25,7 @@ void bfs_moves(Path path);
 void doRandomMoves(Rubiks_cube &cube, int amount);
 void resetCubeSolver();
 
-int NUM_THREADS = 0;
-ThreadPool pool;
-std::atomic<int> highest_cube_score = 0;
-std::atomic<bool> has_white_cross = false, has_first_two_layers = false;
 
-std::chrono::high_resolution_clock::time_point begin, end;
 
 struct CubeComparator
 {
@@ -53,10 +43,17 @@ struct CubeHasher
     }
 };
 
+// Initialization
 std::unordered_set<Rubiks_cube, CubeHasher, CubeComparator> visited;
 Path solution = Path();
 Rubiks_cube cube = Rubiks_cube();
 Function Task::function = nullptr;
+int NUM_THREADS = 0;
+ThreadPool pool;
+std::atomic<int> highest_cube_score = 0;
+std::atomic<bool> has_white_cross = false, has_first_two_layers = false;
+std::vector<Move> bannedMoves;
+std::chrono::high_resolution_clock::time_point begin, end;
 
 void doRandomMoves(Rubiks_cube& cube, int amount)
 {
@@ -87,18 +84,18 @@ int main(int argc, char *argv[]) {
 
 void printMove(Move m) {
     switch(m) {
-    case Move::F: std::cout << "Move F"; break;
-    case Move::Fi: std::cout << "Move Fi"; break;
-    case Move::B: std::cout << "Move B"; break;
-    case Move::Bi: std::cout << "Move Bi"; break;
-    case Move::U: std::cout << "Move U"; break;
-    case Move::Ui: std::cout << "Move Ui"; break;
-    case Move::D: std::cout << "Move D"; break;
-    case Move::Di: std::cout << "Move Di"; break;
-    case Move::R: std::cout << "Move R"; break;
-    case Move::Ri: std::cout << "Move Ri"; break;
-    case Move::L: std::cout << "Move L"; break;
-    case Move::Li: std::cout << "Move Li"; break;
+        case Move::F: std::cout << "Move F"; break;
+        case Move::Fi: std::cout << "Move Fi"; break;
+        case Move::B: std::cout << "Move B"; break;
+        case Move::Bi: std::cout << "Move Bi"; break;
+        case Move::U: std::cout << "Move U"; break;
+        case Move::Ui: std::cout << "Move Ui"; break;
+        case Move::D: std::cout << "Move D"; break;
+        case Move::Di: std::cout << "Move Di"; break;
+        case Move::R: std::cout << "Move R"; break;
+        case Move::Ri: std::cout << "Move Ri"; break;
+        case Move::L: std::cout << "Move L"; break;
+        case Move::Li: std::cout << "Move Li"; break;
     }
     std::cout << ", ";
     std::cout.flush();
@@ -115,9 +112,7 @@ void resetCubeSolver() {
 
 void bfs() {
     resetCubeSolver();
-
     begin = std::chrono::high_resolution_clock::now();
-
     pool.stopRunning(false);
     pool.addWork(Task(bfs_moves, Path()));
 }
@@ -277,7 +272,7 @@ void renderCube(Rubiks_cube &cube)
             }
         }
 
-        if(solution.size() > 0) //Task::solution != nullptr && Task::solution->size() > 0)
+        if(solution.size() > 0)
         {
             std::chrono::duration<double, std::ratio<1>> duration = end - begin;
             std::cout << "Execution time = " << duration.count() << "seconds \n";
@@ -285,11 +280,9 @@ void renderCube(Rubiks_cube &cube)
             pool.stopRunning();
             pool.clearTasks();
 
-            // testing tree structure
-            while(solution.size() > 0) {//Task::solution->size() > 0) {
-                sMoves.push_back(solution.back().first);//Task::solution->back().first);
-                //printMove(sMoves.back());
-                solution.pop();//Task::solution->pop();
+            while(solution.size() > 0) {
+                sMoves.push_back(solution.back().first);
+                solution.pop();
             }
             i = sMoves.size() - 1;
             solving_cube = true;

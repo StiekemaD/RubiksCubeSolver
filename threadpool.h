@@ -12,6 +12,11 @@
 #include <stdlib.h>
 #include <cstring>
 #include <memory>
+/*
+ * Leaving the commented code in to show the thought process to getting to the best solution I could come up with to build the breadfirst-search tree structure.
+ *
+ *
+ */
 
 // Move this to main so ThreadPool becomes generic.
 //using Path = std::vector<std::pair<Move, Rubiks_cube>>;
@@ -27,7 +32,8 @@ public:
     auto end() { return moves + length; }
     Path(const Path& p): length(p.length), cube(p.cube), moves(new Move[21]) { for (unsigned i = 0; i < length; i++) moves[i] = p.moves[i]; }
     Path& operator=(const Path& p) { for (unsigned i = 0; i < p.length; i++) { moves[i] = p.moves[i]; } cube = p.cube; length = p.length; return *this; }
-    void push_back(std::pair<Move, Rubiks_cube> pair) { moves[length++] = pair.first; cube = pair.second; }
+    void push_back(std::pair<Move, Rubiks_cube> pair) { moves[len last Rubiks_cube)
+/*gth++] = pair.first; cube = pair.second; }
     std::pair<Move, Rubiks_cube> back() { return std::make_pair(moves[length-1], cube); }
     int size() { return length; }
 private:
